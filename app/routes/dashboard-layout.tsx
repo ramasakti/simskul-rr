@@ -1,4 +1,4 @@
-import { Outlet, Link, useLocation, redirect } from "react-router";
+import { Outlet, Link, useLocation, useNavigate, redirect } from "react-router";
 import {
     Avatar,
     AvatarFallback,
@@ -16,6 +16,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu"
+import { useAuth } from "../context/AuthContext";
 import { userContext } from "../context/UserContext";
 import type { Route } from "./+types/dashboard-layout";
 
@@ -65,6 +66,13 @@ function NavItem({ to, label }: { to: string; label: string }) {
 
 export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
     const { user } = loaderData;
+    const navigate = useNavigate();
+    const { logout } = useAuth();
+
+    const handleLogout = async () => {
+        await logout();
+        navigate("/");
+    };
 
     return (
         <div className="min-h-screen grid grid-cols-[240px_1fr]">
@@ -86,7 +94,6 @@ export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
                     <div className="text-sm text-muted-foreground">Welcome back 👋</div>
                     <DropdownMenu>
                         <DropdownMenuTrigger>
-
                             <div className="flex items-center gap-3">
                                 <Avatar>
                                     <AvatarImage
@@ -97,8 +104,8 @@ export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
                                 </Avatar>
 
                                 <div className="leading-tight">
-                                    <p className="text-sm font-medium">John Doe</p>
-                                    <p className="text-xs text-muted-foreground"></p>
+                                    <p className="text-sm font-medium">{user?.name}</p>
+                                    <p className="text-xs text-muted-foreground">{user?.role?.role}</p>
                                 </div>
                             </div>
                         </DropdownMenuTrigger>
@@ -109,7 +116,7 @@ export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
                                 <DropdownMenuItem>Biodata</DropdownMenuItem>
                             </DropdownMenuGroup>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem variant="destructive">
+                            <DropdownMenuItem variant="destructive" onClick={handleLogout}>
                                 <LogOutIcon />
                                 Log out
                             </DropdownMenuItem>

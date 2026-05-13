@@ -49,6 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const login = async (credentials: Record<string, string>) => {
         try {
+            console.log(API_BASE_URL)
             const response = await fetch(`${API_BASE_URL}/auth/sso`, {
                 method: 'POST',
                 headers: {

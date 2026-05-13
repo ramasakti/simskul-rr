@@ -16,11 +16,10 @@ export default function Home() {
     const navigate = useNavigate();
     const { login, isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
-    const [email, setEmail] = useState("");
+    const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (isAuthenticated) {
@@ -31,14 +30,13 @@ export default function Home() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        setError(null);
 
-        const result = await login({ email, password });
+        const result = await login({ username, password });
 
         if (result.success) {
             navigate("/dashboard");
         } else {
-            toast.error(result.message || "Email atau password salah.");
+            toast.error(result.message || "username atau password salah.");
             setIsLoading(false);
         }
     };
@@ -72,8 +70,8 @@ export default function Home() {
                         <input
                             type="text"
                             required
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
                             placeholder="Enter your username"
                             className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#066fd1]/30 focus:border-[#066fd1] transition"
                         />

@@ -6,7 +6,8 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
-
+import "nprogress/nprogress.css";
+import { LoadingBar } from "./components/Loading";
 import type { Route } from "./+types/root";
 import "./app.css";
 import { AuthProvider } from "./context/AuthContext";
@@ -45,7 +46,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  return (
+    <>
+      <LoadingBar />
+      <Outlet />
+    </>
+  )
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

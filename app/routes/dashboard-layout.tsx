@@ -1,4 +1,4 @@
-import { Outlet, Link, useLocation, useNavigate, redirect } from "react-router";
+import { Outlet, Link, useLocation, useNavigate, useNavigation, redirect } from "react-router";
 import {
     Avatar,
     AvatarFallback,
@@ -38,7 +38,6 @@ import {
 import { Toaster } from "../components/ui/sonner";
 import { useAuth } from "../context/AuthContext";
 import { userContext } from "../context/UserContext";
-import { Package } from "lucide-react";
 import type { Route } from "./+types/dashboard-layout";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -227,7 +226,7 @@ export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
                                 <Collapsible
                                     key={i}
                                     defaultOpen={isOpen}
-                                    // className="group/collapsible"
+                                    className="group/collapsible"
                                 >
                                     <SidebarGroup className="px-2 py-0">
                                         <SidebarGroupLabel className="text-gray-900 text-sm">

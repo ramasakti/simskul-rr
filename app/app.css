@@ -142,3 +142,14 @@ body {
     @apply font-sans;
   }
 }
+
+#nprogress .bar {
+  background: #066fd1;
+  height: 3px;
+}
+
+#nprogress .peg {
+  box-shadow:
+    0 0 10px #066fd1,
+    0 0 5px #066fd1;
+}

@@ -1,9 +1,9 @@
-import { Outlet, Link, useLocation, useNavigate, useNavigation, redirect } from "react-router";
+import { Outlet, Link, useLocation, useNavigate, redirect } from "react-router";
 import {
     Avatar,
     AvatarFallback,
     AvatarImage,
-} from "../components/ui/avatar";
+} from "@/components/ui/avatar";
 import {
     LogOutIcon,
     ChevronRight
@@ -20,12 +20,12 @@ import {
     SidebarTrigger,
     SidebarHeader,
     SidebarFooter,
-} from "../components/ui/sidebar";
+} from "@/components/ui/sidebar";
 import {
     Collapsible,
     CollapsibleContent,
     CollapsibleTrigger,
-} from "../components/ui/collapsible";
+} from "@/components/ui/collapsible";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -34,10 +34,10 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "../components/ui/dropdown-menu";
-import { Toaster } from "../components/ui/sonner";
-import { useAuth } from "../context/AuthContext";
-import { userContext } from "../context/UserContext";
+} from "@/components/ui/dropdown-menu";
+import { Toaster } from "@/components/ui/sonner";
+import { useAuth } from "@/context/AuthContext";
+import { userContext } from "@/context/UserContext";
 import type { Route } from "./+types/dashboard-layout";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -122,7 +122,7 @@ export const middleware: Route.MiddlewareFunction[] = [
         if (!res.ok) throw redirect("/");
 
         const result = await res.json();
-        if (!result.success) throw redirect("/");
+        if (!result) throw redirect("/");
 
         context.set(userContext, result.payload);
     },
@@ -130,12 +130,12 @@ export const middleware: Route.MiddlewareFunction[] = [
 
 export async function loader({ context, request }: Route.LoaderArgs) {
     const user = context.get(userContext);
-    const roleId = user?.role.id_role;
+    const roleId = user?.user.id_role;
 
     // Forward cookie dari browser → API, sama seperti fetch /me di middleware
     const cookie = request.headers.get("cookie") ?? "";
 
-    const res = await fetch(`${API_BASE_URL}/navbar/${roleId}`, {
+    const res = await fetch(`${API_BASE_URL}/sidebar/${roleId}`, {
         headers: {
             Accept: "application/json",
             cookie,
@@ -291,7 +291,7 @@ export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
                                     </Avatar>
                                     <div className="leading-tight">
                                         <p className="text-sm font-medium">{user?.name}</p>
-                                        <p className="text-xs text-muted-foreground">{user?.role.role}</p>
+                                        <p className="text-xs text-muted-foreground">{user?.role}</p>
                                     </div>
                                 </div>
                             </DropdownMenuTrigger>

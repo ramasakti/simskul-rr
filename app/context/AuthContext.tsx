@@ -23,7 +23,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             if (response.ok) {
                 const result = await response.json();
-                if (result.success) {
+
+                if (result) {
                     setUser(result.payload);
                     setIsAuthenticated(true);
                 } else {
@@ -49,12 +50,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const login = async (credentials: Record<string, string>) => {
         try {
-            console.log(API_BASE_URL)
-            const response = await fetch(`${API_BASE_URL}/auth/sso`, {
+            const response = await fetch(`${API_BASE_URL}/auth`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
+                    'x-app-id': 'simskul'
                 },
                 credentials: 'include',
                 body: JSON.stringify(credentials),
@@ -77,7 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const logout = async () => {
         try {
-            await fetch(`${API_BASE_URL}/logout`, {
+            await fetch(`${API_BASE_URL}/auth/logout`, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',

@@ -13,5 +13,6 @@ export type User = {
   username: string;
   name: string;
   email: string;
-  role: Role;
+  id_role: number;
+  role: string;
 }

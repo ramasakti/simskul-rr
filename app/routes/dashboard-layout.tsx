@@ -46,54 +46,34 @@ function transformNavbar(data: NavbarItem[]): SidebarGroup[] {
     const groups: Map<number, SidebarGroup> = new Map();
     const standaloneGroup: SidebarGroup = { group: "", items: [] };
 
-    // Sort by section order, then menu order
-    const sorted = [...data].sort((a, b) => {
-        const sectionDiff = a.menu.section.order - b.menu.section.order;
-        return sectionDiff !== 0 ? sectionDiff : a.menu.order - b.menu.order;
-    });
-
-    for (const item of sorted) {
-        const { menu } = item;
-
-        // type 0: standalone menu (no section)
-        if (menu.type === 0) {
+    for (const item of data) {
+        // standalone menu (no section)
+        if (!item.section_id) {
             standaloneGroup.items.push({
-                title: menu.name,
-                href: menu.route || "/dashboard",
+                title: item.menu_name,
+                href: item.menu_route || "/dashboard",
+                iconSvg: item.section_icon || undefined
             });
             continue;
         }
 
-        const sectionId = menu.section_id!;
+        const sectionId = item.section_id;
 
         if (!groups.has(sectionId)) {
             groups.set(sectionId, {
-                group: menu.section.name,
-                groupIconSvg: menu.section.icon,
+                group: item.section_name || "",
+                groupIconSvg: item.section_icon || undefined,
                 items: [],
             });
         }
 
         const group = groups.get(sectionId)!;
 
-        // type 1: regular item in a section
-        if (menu.type === 1) {
-            group.items.push({
-                title: menu.name,
-                href: menu.route,
-            });
-        }
-
-        // type 2: parent with children (route kosong, children akan diisi nanti)
-        // Jika type 2 punya route → treat as child; jika tidak → parent collapsible
-        if (menu.type === 2) {
-            // Cek apakah sudah ada parent untuk ini (berdasarkan nama atau logika bisnis kamu)
-            // Untuk sekarang, treat sebagai item biasa dengan href opsional
-            group.items.push({
-                title: menu.name,
-                href: menu.route || undefined,
-            });
-        }
+        // regular item in a section
+        group.items.push({
+            title: item.menu_name,
+            href: item.menu_route || undefined,
+        });
     }
 
     const result: SidebarGroup[] = [];
@@ -290,8 +270,8 @@ export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
                                         <AvatarFallback>CN</AvatarFallback>
                                     </Avatar>
                                     <div className="leading-tight">
-                                        <p className="text-sm font-medium">{user?.name}</p>
-                                        <p className="text-xs text-muted-foreground">{user?.role}</p>
+                                        <p className="text-sm font-medium">{user?.user.name}</p>
+                                        <p className="text-xs text-muted-foreground">{user?.user.role}</p>
                                     </div>
                                 </div>
                             </DropdownMenuTrigger>

@@ -1,31 +1,12 @@
 interface NavbarItem {
     id_navbar: number;
-    menu_id: number;
-    role_id: number;
-    menu: {
-        id_menu: number;
-        type: number;
-        name: string;
-        route: string;
-        parent_id: number | null;
-        section_id: number | null;
-        order: number;
-        section: {
-            id_section: number;
-            name: string;
-            icon: string;
-            order: number;
-        };
-        children?: {
-            id_menu: number;
-            type: number;
-            name: string;
-            route: string;
-            parent_id: number | null;
-            section_id: number | null;
-            order: number;
-        }[];
-    };
+    id_menu: number;
+    menu_name: string;
+    menu_route: string;
+    section_id: number | null;
+    section_name: string | null;
+    section_icon: string | null;
+    role: string;
 }
 
 interface SidebarChild {

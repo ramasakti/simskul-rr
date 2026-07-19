@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             const result = await response.json();
 
-            if (response.ok && result.success) {
+            if (response.ok) {
                 await checkAuth();
                 return { success: true, message: result.message };
             }
@@ -78,7 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const logout = async () => {
         try {
-            await fetch(`${API_BASE_URL}/auth/logout`, {
+            const logout = await fetch(`${API_BASE_URL}/auth/logout`, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',

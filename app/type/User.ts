@@ -5,10 +5,16 @@ export type Role = {
 
 export type Kelas = {
   id_kelas: number;
-  
+
 }
 
 export type User = {
+  user: DetailUser;
+  iat: number;
+  exp: number;
+}
+
+export type DetailUser = {
   id: number;
   username: string;
   name: string;

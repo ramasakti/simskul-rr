@@ -1,11 +1,10 @@
-import type { Route } from "./+types/users/page";
+import type { Route } from "./+types/page";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
-import { columns } from "./columns";
-import { DataTable } from "./data-table";
+import { columns } from "@/components/users/columns";
+import { DataTable } from "@/components/DataTable";
 import type { Meta } from "@/type/Meta";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+import { fetcher } from "@/lib/fetcher";
 
 export function meta({ }: Route.MetaArgs) {
     return [
@@ -37,7 +36,7 @@ export default function Users() {
     useEffect(() => {
         const timeout = setTimeout(() => {
             setSearchParams({
-                page: 1,
+                page: "1",
                 search: searchInput,
             });
         }, 500);
@@ -53,24 +52,25 @@ export default function Users() {
         try {
             setLoading(true);
 
-            const response = await fetch(
-                `${API_BASE_URL}/users?page=${page}&search=${search}`,
-                {
-                    credentials: "include",
-                }
-            );
+            const response = await fetcher(`/users?page=${page}&search=${search}`);
 
             const result = await response.json();
 
-            setData(result.payload || []);
+            const metaData = result.meta || {
+                current_page: 1,
+                last_page: 1,
+                total: 0,
+                per_page: 10,
+            };
 
-            setMeta(
-                result.meta || {
-                    current_page: 1,
-                    last_page: 1,
-                    total: 0,
-                }
-            );
+            const mappedData = (result.payload || []).map((item: any, index: number) => ({
+                ...item,
+                rowIndex: (metaData.current_page - 1) * (metaData.per_page || 10) + index + 1
+            }));
+
+            setData(mappedData);
+
+            setMeta(metaData);
         } catch (error) {
             console.error(error);
         } finally {
@@ -78,9 +78,9 @@ export default function Users() {
         }
     }
 
-    function handlePageChange(newPage) {
+    function handlePageChange(newPage: any) {
         setSearchParams({
-            page: newPage,
+            page: String(newPage),
             search,
         });
     }

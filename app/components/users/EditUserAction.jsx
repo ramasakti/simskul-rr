@@ -2,16 +2,64 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import ImageCropper from "@/components/ImageCropper";
-import { toast } from "react-hot-toast"; // Assuming react-hot-toast, adjust if sonner is used.
-import { toast as sonnerToast } from "sonner"; 
+import { toast as sonnerToast } from "sonner";
+import { fetcher } from "@/lib/fetcher";
+import { useForm } from "@/hooks/use-form";
+
+const createImage = (url) =>
+    new Promise((resolve, reject) => {
+        const image = new Image();
+        image.addEventListener("load", () => resolve(image));
+        image.addEventListener("error", (error) => reject(error));
+        image.src = url;
+    });
+
+async function getCroppedImg(imageSrc, pixelCrop) {
+    const image = await createImage(imageSrc);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = pixelCrop.width;
+    canvas.height = pixelCrop.height;
+
+    ctx.drawImage(
+        image,
+        pixelCrop.x,
+        pixelCrop.y,
+        pixelCrop.width,
+        pixelCrop.height,
+        0,
+        0,
+        pixelCrop.width,
+        pixelCrop.height
+    );
+
+    return new Promise((resolve) => {
+        canvas.toBlob((file) => {
+            resolve(file);
+        }, "image/jpeg");
+    });
+}
 
 export function EditUserAction({ user }) {
     const [open, setOpen] = useState(false);
-    const [email, setEmail] = useState(user.email || "");
-    const [role, setRole] = useState(user.role || "");
     const [imageSrc, setImageSrc] = useState(null);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+
+    const { data, setData, processing, setProcessing, setErrors } = useForm({
+        email: user.email || "",
+        id_role: user.role || "",
+    });
 
     const onFileChange = async (e) => {
         if (e.target.files && e.target.files.length > 0) {
@@ -35,11 +83,33 @@ export function EditUserAction({ user }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // Disini tambahkan logika submit ke API.
-        console.log("Submitting:", { email, role, croppedAreaPixels });
-        
-        sonnerToast("User updated successfully");
-        setOpen(false);
+        setProcessing(true);
+
+        try {
+            const FData = new FormData();
+            FData.append("email", data.email);
+            FData.append("id_role", data.id_role);
+
+            if (imageSrc && croppedAreaPixels) {
+                const croppedImageBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
+                FData.append("avatar", croppedImageBlob, "avatar.jpg");
+            }
+
+            const response = await fetcher(`/user/${user.username}`, {
+                method: "PUT",
+                payload: FData,
+            });
+
+            const result = await response.json();
+            sonnerToast.success(result.message);
+        } catch (error) {
+            console.error(error);
+            sonnerToast.error(error.message);
+            setErrors({ general: error.message });
+        } finally {
+            setProcessing(false);
+            setOpen(false);
+        }
     };
 
     return (
@@ -47,26 +117,34 @@ export function EditUserAction({ user }) {
             <DialogTrigger asChild>
                 <Button variant="outline" size="sm">Edit</Button>
             </DialogTrigger>
-            <DialogContent className="max-w-xl">
+            <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Edit User</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="text-sm font-medium">Email</label>
-                        <Input 
-                            type="email" 
-                            value={email} 
-                            onChange={(e) => setEmail(e.target.value)} 
+                        <Input
+                            type="email"
+                            value={data.email}
+                            onChange={(e) => setData("email", e.target.value)}
                         />
                     </div>
                     <div>
                         <label className="text-sm font-medium">Role</label>
-                        <Input 
-                            type="text" 
-                            value={role} 
-                            onChange={(e) => setRole(e.target.value)} 
-                        />
+                        <Select
+                            value={data.id_role}
+                            onValueChange={(value) => setData("id_role", value)}
+                        >
+                            <SelectTrigger className="w-full max-w-48">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectLabel>Role</SelectLabel>
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
                     </div>
                     <div>
                         <label className="text-sm font-medium">Foto</label>
@@ -74,13 +152,15 @@ export function EditUserAction({ user }) {
                     </div>
                     {imageSrc && (
                         <div className="mt-4">
-                            <ImageCropper 
-                                imageSrc={imageSrc} 
-                                onCropComplete={onCropComplete} 
+                            <ImageCropper
+                                imageSrc={imageSrc}
+                                onCropComplete={onCropComplete}
                             />
                         </div>
                     )}
-                    <Button type="submit">Save Changes</Button>
+                    <Button type="submit" disabled={processing}>
+                        {processing ? "Menyimpan..." : "Save Changes"}
+                    </Button>
                 </form>
             </DialogContent>
         </Dialog>

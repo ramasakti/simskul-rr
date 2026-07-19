@@ -110,7 +110,7 @@ export const middleware: Route.MiddlewareFunction[] = [
 
 export async function loader({ context, request }: Route.LoaderArgs) {
     const user = context.get(userContext);
-    const roleId = user?.user.id_role;
+    const roleId = user?.user.role_id;
 
     // Forward cookie dari browser → API, sama seperti fetch /me di middleware
     const cookie = request.headers.get("cookie") ?? "";

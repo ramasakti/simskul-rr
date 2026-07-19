@@ -19,6 +19,6 @@ export type DetailUser = {
   username: string;
   name: string;
   email: string;
-  id_role: number;
+  role_id: number;
   role: string;
 }

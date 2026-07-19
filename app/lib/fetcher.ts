@@ -33,5 +33,27 @@ export const fetcher = async (endpoint: string, options: FetcherOptions = {}) =>
     }
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+
+    if (!response.ok) {
+        let message = `HTTP Error ${response.status}`;
+
+        try {
+            const data = await response.clone().json();
+            message = data.message || message;
+        } catch {
+            try {
+                message = await response.text();
+            } catch {
+                // abaikan, gunakan message default
+            }
+        }
+
+        const error: any = new Error(message);
+        error.status = response.status;
+        error.response = response;
+
+        throw error;
+    }
+
     return response;
 };

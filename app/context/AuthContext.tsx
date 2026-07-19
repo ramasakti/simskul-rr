@@ -62,6 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             });
 
             const result = await response.json();
+            console.log(result)
 
             if (response.ok) {
                 await checkAuth();
